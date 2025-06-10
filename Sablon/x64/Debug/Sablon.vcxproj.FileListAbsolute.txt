@@ -1,0 +1,3 @@
+D:\FTNAK\7semester\grafika\RG V9\V9\x64\Debug\glew32.dll
+D:\FTNAK\7semester\grafika\3d_projekat\akosev_projekat\V9\x64\Debug\glew32.dll
+D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\x64\Debug\glew32.dll
