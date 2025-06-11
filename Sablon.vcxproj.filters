@@ -21,9 +21,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TextRenderer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -33,18 +30,9 @@
     <None Include="basic.vert">
       <Filter>Source Files\Shader Files</Filter>
     </None>
-    <None Include="text.vert">
-      <Filter>Source Files\Shader Files</Filter>
-    </None>
-    <None Include="text.frag">
-      <Filter>Source Files\Shader Files</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stb_easy_font.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TextRenderer.hpp">
+    <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

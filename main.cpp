@@ -1,5 +1,5 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
- 
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -11,9 +11,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "stb_easy_font.h"
-#include "TextRenderer.hpp"
 #include <vector>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
@@ -27,11 +27,35 @@ const int NUM_STARS = 200;
 std::vector<glm::vec3> stars;
 GLuint starVAO = 0, starVBO = 0;
 
+GLuint loadTexture(const char* path) {
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrChannels;
+    unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+    if (data) {
+        GLenum format = nrChannels == 4 ? GL_RGBA : GL_RGB;
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else {
+        std::cout << "Failed to load texture: " << path << std::endl;
+    }
+    stbi_image_free(data);
+    return textureID;
+}
+
 int main(void)
 {
     if (!glfwInit())
     {
-        std::cout<<"GLFW Biblioteka se nije ucitala! :(\n";
+        std::cout << "GLFW Biblioteka se nije ucitala! :(\n";
         return 1;
     }
 
@@ -45,18 +69,18 @@ int main(void)
     unsigned int wHeight = 800;
     const char wTitle[] = "Star wars brod";
     window = glfwCreateWindow(wWidth, wHeight, wTitle, NULL, NULL);
-    
+
     if (window == NULL)
     {
         std::cout << "Prozor nije napravljen! :(\n";
         glfwTerminate();
         return 2;
     }
-    
+
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // za 60FPS
     glViewport(0, 0, wWidth, wHeight);
-    
+
     if (glewInit() != GLEW_OK)
     {
         std::cout << "GLEW nije mogao da se ucita! :'(\n";
@@ -64,11 +88,9 @@ int main(void)
     }
 
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ PROMJENLJIVE I BAFERI +++++++++++++++++++++++++++++++++++++++++++++++++
-    TextRenderer textRenderer;
-    textRenderer.init("text.vert", "text.frag");
-
     unsigned int unifiedShader = createShader("basic.vert", "basic.frag");
-    glUseProgram(unifiedShader);
+
+   
 
     float cubeVertices[] = {
         // prednja
@@ -107,6 +129,18 @@ int main(void)
         -0.5f, 0.5f,  0.5f, -0.5f, 0.5f, -0.5f,  0.0f, 1.3f, 0.0f
     };
 
+    float quadVertices[] = {
+        // pozicija       // tex koordinate
+        // gornji levi trougao
+        0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
+        1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // bottom-right
+        0.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom-left
+
+        // donji desni trougao
+        0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // top-right
+        1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // bottom-right
+    };
 
 
     GLuint cubeVAO, cubeVBO;
@@ -126,6 +160,23 @@ int main(void)
     glBufferData(GL_ARRAY_BUFFER, sizeof(pyramidVertices), pyramidVertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    GLuint quadVAO, quadVBO;
+    glGenVertexArrays(1, &quadVAO);
+    glGenBuffers(1, &quadVBO);
+
+    glBindVertexArray(quadVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
+
+    // Pozicija
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // Tekstura koordinate
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
 
     // Generisanje zvezda
     for (int i = 0; i < NUM_STARS; ++i) {
@@ -150,8 +201,16 @@ int main(void)
 
     glm::mat4 projection = glm::perspective(glm::radians(90.0f), (float)wWidth / (float)wHeight, 0.1f, 100.0f); //Matrica perspektivne projekcije (FOV, Aspect Ratio, prednja ravan, zadnja ravan)
 
-    glm::mat4 projectionO = glm::ortho(10.0f, (float)wWidth, (float)wHeight, 10.0f); //Matrica ortogonalne projekcije (Lijeva, desna, donja, gornja, prednja i zadnja ravan)
+    glm::mat4 projectionO = glm::ortho(0.0f, (float)wWidth, (float)wHeight, 0.0f, -1.0f, 1.0f); //Matrica ortogonalne projekcije (Lijeva, desna, donja, gornja, prednja i zadnja ravan)
 
+
+    GLuint texture = loadTexture("ime.png");
+    // Postavljanje šejdera
+    glUseProgram(unifiedShader);
+    GLuint modelLoc = glGetUniformLocation(unifiedShader, "model");
+    GLuint viewLoc = glGetUniformLocation(unifiedShader, "view");
+    GLuint projLoc = glGetUniformLocation(unifiedShader, "projection");
+    GLuint colorLoc = glGetUniformLocation(unifiedShader, "objectColor");
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ RENDER LOOP - PETLJA ZA CRTANJE +++++++++++++++++++++++++++++++++++++++++++++++++
 
     bool depthEnabled = true;
@@ -160,6 +219,10 @@ int main(void)
     glEnable(GL_CULL_FACE);         // Omogući odstranjivanje lica
     glCullFace(GL_BACK);            // Uklanjaj zadnja lica
     glFrontFace(GL_CCW);            // Prednja lica su ona čiji su verteksi CCW
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -198,13 +261,12 @@ int main(void)
         glClearColor(0.1, 0.1, 0.2, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Postavljanje šejdera
-        glUseProgram(unifiedShader);
-        GLuint modelLoc = glGetUniformLocation(unifiedShader, "model");
-        GLuint viewLoc = glGetUniformLocation(unifiedShader, "view");
-        GLuint projLoc = glGetUniformLocation(unifiedShader, "projection");
-        GLuint colorLoc = glGetUniformLocation(unifiedShader, "objectColor"); 
 
+
+
+
+
+        glUniform1i(glGetUniformLocation(unifiedShader, "useTexture"), 0);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
@@ -241,7 +303,23 @@ int main(void)
         glDrawArrays(GL_POINTS, 0, NUM_STARS);
 
         // Tekst
-        textRenderer.render("Akos Kis RA11/2021", 10.0f, 10.0f, glm::vec3(1.0f, 1.0f, 0.0f), projectionO);
+        // Pravougaonik sa teksturom
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        glUniform1i(glGetUniformLocation(unifiedShader, "tex"), 0);
+        glUniform1i(glGetUniformLocation(unifiedShader, "useTexture"), 1);
+
+        glm::mat4 ime_view = glm::mat4(1.0f); // nema kamere u orto pogledu
+        glm::mat4 ime_model = glm::translate(glm::mat4(1.0f), glm::vec3(10.0f, wHeight - 160.0f, 0.0f));
+        ime_model = glm::scale(ime_model, glm::vec3(256.0f, 256.0f, 1.0f));
+
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(ime_model));
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(ime_view));
+        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projectionO));
+
+        glBindVertexArray(quadVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -274,11 +352,11 @@ unsigned int compileShader(GLenum type, const char* source)
         ss << "";
         std::cout << "Greska pri citanju fajla sa putanje \"" << source << "\"!" << std::endl;
     }
-     std::string temp = ss.str();
-     const char* sourceCode = temp.c_str();
+    std::string temp = ss.str();
+    const char* sourceCode = temp.c_str();
 
     int shader = glCreateShader(type);
-    
+
     int success;
     char infoLog[512];
     glShaderSource(shader, 1, &sourceCode, NULL);

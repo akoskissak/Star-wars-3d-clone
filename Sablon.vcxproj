@@ -142,18 +142,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TextRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="basic.frag" />
     <None Include="basic.vert" />
     <None Include="packages.config" />
-    <None Include="text.frag" />
-    <None Include="text.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stb_easy_font.h" />
-    <ClInclude Include="TextRenderer.hpp" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
