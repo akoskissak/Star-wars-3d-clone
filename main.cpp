@@ -19,7 +19,7 @@ unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
 
 glm::vec3 shipPosition = glm::vec3(0.0f, 0.0f, 10.0f);
-float shipRotationY = 0.0f; // u radijanima
+float shipRotationY = 0.0f; // radijani
 float shipSpeed = 0.05f;
 float shipTurnSpeed = glm::radians(2.0f);
 
@@ -90,8 +90,6 @@ int main(void)
     // ++++++++++++++++++++++++++++++++++++++++++++++++++++++ PROMJENLJIVE I BAFERI +++++++++++++++++++++++++++++++++++++++++++++++++
     unsigned int unifiedShader = createShader("basic.vert", "basic.frag");
 
-   
-
     float cubeVertices[] = {
         // prednja
         -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,  0.5f, 0.5f, 0.5f,
@@ -114,7 +112,7 @@ int main(void)
     };
 
     float pyramidVertices[] = {
-        // baza (kvadrat)
+        // baza
         -0.5f, 0.5f, -0.5f,
          0.5f, 0.5f, -0.5f,
          0.5f, 0.5f,  0.5,
@@ -122,7 +120,7 @@ int main(void)
         -0.5f, 0.5f,  0.5f,
         -0.5f, 0.5f, -0.5f,
 
-        // strane (4 trougla)
+        // strane 
         -0.5f, 0.5f, -0.5f,  0.5f, 0.5f, -0.5f,  0.0f, 1.3f, 0.0f,
          0.5f, 0.5f, -0.5f,  0.5f, 0.5f,  0.5f,  0.0f, 1.3f, 0.0f,
          0.5f, 0.5f,  0.5f, -0.5f, 0.5f,  0.5f,  0.0f, 1.3f, 0.0f,
@@ -132,14 +130,14 @@ int main(void)
     float quadVertices[] = {
         // pozicija       // tex koordinate
         // gornji levi trougao
-        0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
-        1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // bottom-right
-        0.0f, 0.0f, 0.0f,   0.0f, 0.0f, // bottom-left
+        0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+        1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,   0.0f, 0.0f,
 
         // donji desni trougao
-        0.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
-        1.0f, 1.0f, 0.0f,   1.0f, 1.0f, // top-right
-        1.0f, 0.0f, 0.0f,   1.0f, 0.0f  // bottom-right
+        0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+        1.0f, 0.0f, 0.0f,   1.0f, 0.0f
     };
 
 
@@ -173,7 +171,7 @@ int main(void)
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Tekstura koordinate
+    // Tekstura
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
@@ -223,7 +221,6 @@ int main(void)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-
     while (!glfwWindowShouldClose(window))
     {
         // Kamera
@@ -260,11 +257,6 @@ int main(void)
 
         glClearColor(0.1, 0.1, 0.2, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
-
-
-
 
         glUniform1i(glGetUniformLocation(unifiedShader, "useTexture"), 0);
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -303,7 +295,6 @@ int main(void)
         glDrawArrays(GL_POINTS, 0, NUM_STARS);
 
         // Tekst
-        // Pravougaonik sa teksturom
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -329,8 +320,10 @@ int main(void)
 
     glDeleteBuffers(1, &cubeVBO);
     glDeleteBuffers(1, &pyramidVBO);
+    glDeleteBuffers(1, &quadVBO);
     glDeleteVertexArrays(1, &cubeVAO);
     glDeleteVertexArrays(1, &pyramidVAO);
+    glDeleteVertexArrays(1, &quadVAO);
     glDeleteProgram(unifiedShader);
 
     glfwTerminate();

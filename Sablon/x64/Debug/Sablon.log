@@ -1,5 +1,5 @@
 ﻿  main.cpp
-D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(261,32): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(261,27): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
-D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(261,22): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(258,32): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(258,27): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
+D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\main.cpp(258,22): warning C4305: 'argument': truncation from 'double' to 'GLclampf'
   Sablon.vcxproj -> D:\FTNAK\7semester\grafika\3d_projekat\Star-wars-3d-clone\x64\Debug\Sablon.exe
